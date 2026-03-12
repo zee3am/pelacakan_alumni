@@ -1,4 +1,5 @@
 "use client";
+// Force redeploy with latest search engine fixes
 
 import { useState, useEffect } from "react";
 
