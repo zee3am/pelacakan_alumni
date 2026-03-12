@@ -48,8 +48,15 @@ export default function DashboardPage() {
     try {
       const res = await fetch("/api/alumni");
       const data = await res.json();
-      setAlumni(data);
+      
+      if (Array.isArray(data)) {
+        setAlumni(data);
+      } else {
+        setAlumni([]);
+        if (data.error) showToast(data.error, "error");
+      }
     } catch {
+      setAlumni([]);
       showToast("Gagal memuat data alumni", "error");
     } finally {
       setLoading(false);
