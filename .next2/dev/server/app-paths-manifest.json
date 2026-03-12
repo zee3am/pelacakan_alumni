@@ -1,0 +1,7 @@
+{
+  "/api/cron/route": "app/api/cron/route.js",
+  "/api/alumni/[id]/route": "app/api/alumni/[id]/route.js",
+  "/api/alumni/[id]/evidence/[evidenceId]/route": "app/api/alumni/[id]/evidence/[evidenceId]/route.js",
+  "/alumni/new/page": "app/alumni/new/page.js",
+  "/alumni/[id]/page": "app/alumni/[id]/page.js"
+}

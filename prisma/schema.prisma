@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Alumni {
+  id              Int                @id @default(autoincrement())
+  nama            String
+  afiliasi_kampus String?
+  program_studi   String?
+  kota            String?
+  bidang_pekerjaan String?
+  status          String             @default("Belum Dilacak")
+  last_tracked    DateTime?
+  created_at      DateTime           @default(now())
+  updated_at      DateTime           @updatedAt
+  evidences       TrackingEvidence[]
+}
+
+model TrackingEvidence {
+  id                Int       @id @default(autoincrement())
+  alumni_id         Int
+  sumber            String
+  url               String
+  ringkasan_jabatan String?
+  confidence_score  Float     @default(0)
+  confidence_label  String?
+  tanggal_ditemukan DateTime  @default(now())
+  is_verified       Boolean   @default(false)
+  alumni            Alumni    @relation(fields: [alumni_id], references: [id], onDelete: Cascade)
+}
