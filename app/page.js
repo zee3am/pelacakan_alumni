@@ -120,26 +120,37 @@ export default function DashboardPage() {
         throw new Error("File Excel kosong atau tidak valid");
       }
 
-      // Kirim hasil ekstrak JSON ke server
-      const res = await fetch("/api/alumni/upload", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ data: json }),
-      });
+      // Membagi array menjadi chunk (kelompok kecil 250 baris per request)
+      const chunkSize = 250;
+      let totalAdded = 0;
       
-      const text = await res.text();
-      let responseData;
-      try {
-        responseData = JSON.parse(text);
-      } catch (e) {
-        throw new Error("Terjadi kesalahan dari server Vercel. Payload terlalu besar.");
+      for (let i = 0; i < json.length; i += chunkSize) {
+        const chunk = json.slice(i, i + chunkSize);
+        
+        // Kirim hasil ekstrak JSON ke server berupa chunk
+        const res = await fetch("/api/alumni/upload", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ data: chunk }),
+        });
+        
+        const text = await res.text();
+        let responseData;
+        try {
+          responseData = JSON.parse(text);
+        } catch (e) {
+          throw new Error("Terjadi kesalahan dari server Vercel. Payload atau durasi terlalu besar pada sebuah chunk.");
+        }
+        
+        if (!res.ok) throw new Error(responseData.error || "Gagal menyimpan data Excel");
+        
+        // Asumsi server merespons berapa baris yang berhasil diimport, tambahkan totalnya
+        totalAdded += (chunk.length); 
       }
-      
-      if (!res.ok) throw new Error(responseData.error || "Gagal menyimpan data Excel");
 
-      showToast(responseData.message || "Berhasil import data alumni", "success");
+      showToast(`Berhasil import data alumni (${json.length} baris diproses)`, "success");
       fetchAlumni(); // refresh tabel
     } catch (err) {
       showToast(err.message, "error");
