@@ -14,30 +14,46 @@ export async function GET() {
     });
 
     // Buat header CSV
-    let csvData = "ID,Nama,Status,Instansi Kampus,Program Studi,Kota,Bidang Pekerjaan,Ditemukan Di,Link Bukti,Ringkasan,Skor Kecocokan,Terakhir Dilacak\n";
+    let csvData = "ID,Nama,Status,Instansi Kampus,Program Studi,Kota,Bidang Pekerjaan,Email,No HP,LinkedIn,Instagram,Facebook,TikTok,Tempat Bekerja,Alamat Bekerja,Posisi,Status Kepegawaian,Medsos Tempat Bekerja,Ditemukan Di (Scraper),Link Bukti (Scraper),Ringkasan (Scraper),Skor Kecocokan,Terakhir Dilacak\n";
 
     alumniList.forEach(alumni => {
       const evidence = alumni.evidences[0];
       
+      const escapeCsv = (str) => {
+        if (str === null || str === undefined) return '""';
+        return `"${String(str).replace(/"/g, '""')}"`;
+      };
+      
       const cols = [
         alumni.id,
-        `"${(alumni.nama || '').replace(/"/g, '""')}"`,
-        alumni.status,
-        `"${(alumni.afiliasi_kampus || '').replace(/"/g, '""')}"`,
-        `"${(alumni.program_studi || '').replace(/"/g, '""')}"`,
-        `"${(alumni.kota || '').replace(/"/g, '""')}"`,
-        `"${(alumni.bidang_pekerjaan || '').replace(/"/g, '""')}"`,
-        `"${evidence ? (evidence.sumber || '').replace(/"/g, '""') : '—'}"`,
-        `"${evidence ? evidence.url : '—'}"`,
-        `"${evidence ? (evidence.ringkasan_jabatan || '').replace(/"/g, '""') : '—'}"`,
-        evidence ? `${evidence.confidence_score}%` : '—',
-        alumni.last_tracked ? new Date(alumni.last_tracked).toISOString().split('T')[0] : '—'
+        escapeCsv(alumni.nama),
+        escapeCsv(alumni.status),
+        escapeCsv(alumni.afiliasi_kampus),
+        escapeCsv(alumni.program_studi),
+        escapeCsv(alumni.kota),
+        escapeCsv(alumni.bidang_pekerjaan),
+        escapeCsv(alumni.email),
+        escapeCsv(alumni.no_hp),
+        escapeCsv(alumni.linkedin),
+        escapeCsv(alumni.instagram),
+        escapeCsv(alumni.facebook),
+        escapeCsv(alumni.tiktok),
+        escapeCsv(alumni.tempat_bekerja),
+        escapeCsv(alumni.alamat_bekerja),
+        escapeCsv(alumni.posisi),
+        escapeCsv(alumni.status_kepegawaian),
+        escapeCsv(alumni.medsos_tempat_bekerja),
+        escapeCsv(evidence ? evidence.sumber : ''),
+        escapeCsv(evidence ? evidence.url : ''),
+        escapeCsv(evidence ? evidence.ringkasan_jabatan : ''),
+        evidence ? `${evidence.confidence_score}%` : '""',
+        alumni.last_tracked ? new Date(alumni.last_tracked).toISOString().split('T')[0] : '""'
       ];
       
       csvData += cols.join(",") + "\n";
     });
 
-    return new NextResponse(csvData, {
+    return new NextResponse("\uFEFF" + csvData, {
       status: 200,
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',

@@ -13,8 +13,19 @@ model Alumni {
   afiliasi_kampus String?
   program_studi   String?
   kota            String?
-  bidang_pekerjaan String?
-  status          String             @default("Belum Dilacak")
+  bidang_pekerjaan      String?
+  linkedin              String?
+  instagram             String?
+  facebook              String?
+  tiktok                String?
+  email                 String?
+  no_hp                 String?
+  tempat_bekerja        String?
+  alamat_bekerja        String?
+  posisi                String?
+  status_kepegawaian    String?
+  medsos_tempat_bekerja String?
+  status                String             @default("Belum Dilacak")
   last_tracked    DateTime?
   created_at      DateTime           @default(now())
   updated_at      DateTime           @updatedAt
