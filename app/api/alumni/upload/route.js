@@ -61,7 +61,7 @@ export async function POST(request) {
           posisi: mappedData.posisi || null,
           jenis_pekerjaan: mappedData.jenis_pekerjaan || null,
           sosmed_instansi: mappedData.sosmed_instansi || null,
-          status: "Belum Dilacak" // Default status
+          status: (mappedData.posisi || mappedData.tempat_bekerja || mappedData.linkedin) ? "Teridentifikasi" : "Belum Dilacak"
         });
       }
     }
