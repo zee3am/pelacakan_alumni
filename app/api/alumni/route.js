@@ -6,6 +6,7 @@ export async function GET() {
   try {
     const alumni = await prisma.alumni.findMany({
       orderBy: { updated_at: "desc" },
+      take: 500, // Membatasi data terbaru agar halaman dashboard tidak lag/hang jika datanya ribuan
       include: {
         evidences: {
           orderBy: { confidence_score: "desc" },
