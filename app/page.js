@@ -87,6 +87,44 @@ export default function DashboardPage() {
     }
   };
 
+  const handleExportCSV = () => {
+    if (alumni.length === 0) return showToast("Tidak ada data untuk diekspor", "error");
+
+    // Persiapkan header
+    const headers = [
+      "ID", "Nama", "Status", "Afiliasi Kampus", "Program Studi", "Kota", "Bidang Pekerjaan", "Terakhir Dilacak", "URL Bukti Terkuat", "Ringkasan Bukti"
+    ];
+
+    // Konversi baris data
+    const rows = alumni.map(a => {
+      const topEvidence = a.evidences?.[0] || {};
+      return [
+        a.id,
+        `"${(a.nama || "").replace(/"/g, '""')}"`,
+        `"${a.status}"`,
+        `"${(a.afiliasi_kampus || "").replace(/"/g, '""')}"`,
+        `"${(a.program_studi || "").replace(/"/g, '""')}"`,
+        `"${(a.kota || "").replace(/"/g, '""')}"`,
+        `"${(a.bidang_pekerjaan || "").replace(/"/g, '""')}"`,
+        a.last_tracked ? new Date(a.last_tracked).toLocaleDateString("id-ID") : "",
+        `"${(topEvidence.url || "").replace(/"/g, '""')}"`,
+        `"${(topEvidence.ringkasan_jabatan || "").replace(/"/g, '""')}"`
+      ].join(",");
+    });
+
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    
+    // Trigger download
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `Data_Alumni_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Calculate stats
   const totalAlumni = alumni.length;
   const belumDilacak = alumni.filter(
@@ -106,21 +144,29 @@ export default function DashboardPage() {
           <h1>Dashboard Pelacakan</h1>
           <p>Kelola dan pantau status pelacakan alumni secara real-time</p>
         </div>
-        <button
-          className="btn btn-primary btn-lg"
-          onClick={handleTrackAll}
-          disabled={trackingAll}
-          id="btn-track-all"
-        >
-          {trackingAll ? (
-            <>
-              <span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }}></span>
-              Melacak...
-            </>
-          ) : (
-            <>🔍 Jalankan Pelacakan</>
-          )}
-        </button>
+        <div className="flex gap-sm">
+          <button
+            className="btn btn-secondary btn-lg"
+            onClick={handleExportCSV}
+          >
+            📥 Ekspor CSV
+          </button>
+          <button
+            className="btn btn-primary btn-lg"
+            onClick={handleTrackAll}
+            disabled={trackingAll}
+            id="btn-track-all"
+          >
+            {trackingAll ? (
+              <>
+                <span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }}></span>
+                Melacak...
+              </>
+            ) : (
+              <>🔍 Jalankan Pelacakan</>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Stats Grid */}
