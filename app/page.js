@@ -2,6 +2,7 @@
 // Force redeploy with latest search engine fixes
 
 import { useState, useEffect } from "react";
+import * as xlsx from "xlsx";
 
 function getStatusBadgeClass(status) {
   switch (status) {
@@ -88,37 +89,57 @@ export default function DashboardPage() {
     }
   };
 
+
+
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Pastikan ekstensi valid
     const isExcel = file.name.endsWith(".xlsx") || file.name.endsWith(".xls") || file.name.endsWith(".csv");
     if (!isExcel) {
       return showToast("Mohon upload file dengan format Excel (.xlsx, .xls) atau CSV.", "error");
     }
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
 
     try {
+      const data = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = (e) => reject(new Error("Gagal membaca file"));
+        reader.readAsArrayBuffer(file);
+      });
+
+      // Proses file di komputer pengguna (Browser), bukan di server Vercel
+      const workbook = xlsx.read(data, { type: "buffer" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const json = xlsx.utils.sheet_to_json(sheet);
+
+      if (!json || json.length === 0) {
+        throw new Error("File Excel kosong atau tidak valid");
+      }
+
+      // Kirim hasil ekstrak JSON ke server
       const res = await fetch("/api/alumni/upload", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ data: json }),
       });
       
       const text = await res.text();
-      let data;
+      let responseData;
       try {
-        data = JSON.parse(text);
+        responseData = JSON.parse(text);
       } catch (e) {
-        throw new Error(text.substring(0, 80) || "Terjadi kesalahan upload.");
+        throw new Error("Terjadi kesalahan dari server Vercel. Payload terlalu besar.");
       }
       
-      if (!res.ok) throw new Error(data.error || "Gagal upload Excel");
+      if (!res.ok) throw new Error(responseData.error || "Gagal menyimpan data Excel");
 
-      showToast(data.message || "Berhasil import data alumni", "success");
+      showToast(responseData.message || "Berhasil import data alumni", "success");
       fetchAlumni(); // refresh tabel
     } catch (err) {
       showToast(err.message, "error");

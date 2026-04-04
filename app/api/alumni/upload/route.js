@@ -1,27 +1,13 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import * as xlsx from "xlsx";
 
 export async function POST(request) {
   try {
-    const data = await request.formData();
-    const file = data.get("file");
+    const body = await request.json();
+    const json = body.data;
 
-    if (!file) {
-      return NextResponse.json({ error: "File tidak ditemukan" }, { status: 400 });
-    }
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Baca file Excel
-    const workbook = xlsx.read(buffer, { type: "buffer" });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const json = xlsx.utils.sheet_to_json(sheet);
-
-    if (!json || json.length === 0) {
-      return NextResponse.json({ error: "File Excel kosong atau tidak valid" }, { status: 400 });
+    if (!json || !Array.isArray(json) || json.length === 0) {
+      return NextResponse.json({ error: "Data Excel kosong atau tidak valid" }, { status: 400 });
     }
 
     // Mapping key dari excel ke database (huruf kecil semua, hilangkan spasi dll)
@@ -38,10 +24,10 @@ export async function POST(request) {
       if (h.includes("instagram") || h.includes("ig")) return "instagram";
       if (h.includes("facebook") || h.includes("fb")) return "facebook";
       if (h.includes("tiktok")) return "tiktok";
-      if (h.includes("tempat kerja") || h.includes("tempat bekerja") || h.includes("perusahaan")) return "tempat_bekerja";
-      if (h.includes("alamat kerja") || h.includes("alamat perusahaan")) return "alamat_bekerja";
+      if (h.includes("tempat kerja") || h.includes("tempat bekerja") || h.includes("perusahaan") || h.includes("instansi")) return "tempat_bekerja";
+      if (h.includes("alamat kerja") || h.includes("alamat perusahaan") || h.includes("alamat instansi")) return "alamat_bekerja";
       if (h.includes("posisi") || h.includes("jabatan")) return "posisi";
-      if (h.includes("pns") || h.includes("jenis pekerjaan")) return "jenis_pekerjaan";
+      if (h.includes("pns") || h.includes("jenis pekerjaan") || h.includes("swasta")) return "jenis_pekerjaan";
       if (h.includes("sosmed instansi") || h.includes("media sosial instansi") || h.includes("sosmed tempat")) return "sosmed_instansi";
       return null;
     };
@@ -57,7 +43,7 @@ export async function POST(request) {
         }
       }
 
-      if (mappedData.nama) {
+      if (mappedData.nama && mappedData.nama.trim() !== "") {
         await prisma.alumni.create({
           data: {
             nama: mappedData.nama,
@@ -90,6 +76,6 @@ export async function POST(request) {
 
   } catch (err) {
     console.error("Upload error:", err);
-    return NextResponse.json({ error: "Gagal memproses file Excel" }, { status: 500 });
+    return NextResponse.json({ error: "Gagal memproses/menyimpan data dari file" }, { status: 500 });
   }
 }
