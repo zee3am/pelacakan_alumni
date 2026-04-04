@@ -107,7 +107,14 @@ export default function DashboardPage() {
         method: "POST",
         body: formData,
       });
-      const data = await res.json();
+      
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(text.substring(0, 80) || "Terjadi kesalahan upload.");
+      }
       
       if (!res.ok) throw new Error(data.error || "Gagal upload Excel");
 
