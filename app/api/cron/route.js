@@ -24,14 +24,19 @@ export async function POST(request) {
       }
       alumniList = [alumni];
     } else {
-      // Track all with status "Belum Dilacak" or "Perlu Verifikasi"
+      // Hanya lacak yang Belum Dilacak secara batching untuk menghindari Vercel Timeout
       alumniList = await prisma.alumni.findMany({
         where: {
           status: {
-            in: ["Belum Dilacak", "Perlu Verifikasi"],
+            in: ["Belum Dilacak"],
           },
         },
+        take: 3, // Maksimal 3 orang per request agar tidak kena maxDuration 10s Hobby Tier
       });
+    }
+
+    if (alumniList.length === 0) {
+      return NextResponse.json({ message: "Tidak ada data baru yang perlu dilacak.", results: [] });
     }
 
     const results = [];

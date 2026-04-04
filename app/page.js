@@ -77,15 +77,34 @@ export default function DashboardPage() {
 
   const handleTrackAll = async () => {
     setTrackingAll(true);
+    let keepRunning = true;
+    let trackCount = 0;
+
     try {
-      const res = await fetch("/api/cron", { method: "POST" });
-      const data = await res.json();
-      showToast(data.message, "success");
-      fetchAlumni();
+      while (keepRunning) {
+        const res = await fetch("/api/cron", { method: "POST" });
+        const data = await res.json();
+        
+        if (!res.ok) {
+          showToast("Terputus dari server. Melanjutkan...", "warning");
+          // Break temporarily or you can break fully
+          break;
+        }
+
+        if (data.results && data.results.length > 0) {
+          trackCount += data.results.length;
+          showToast(`Berhasil melacak ${trackCount} alumni...`, "success");
+          await fetchAlumni(); // refresh screen pelan-pelan
+        } else {
+          showToast(data.message || "Seluruh alumni berhasil dilacak!", "success");
+          keepRunning = false;
+        }
+      }
     } catch {
-      showToast("Gagal menjalankan pelacakan", "error");
+      showToast("Pelacakan berhenti akibat kesalahan koneksi", "error");
     } finally {
       setTrackingAll(false);
+      fetchAlumni();
     }
   };
 
