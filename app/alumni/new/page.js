@@ -11,17 +11,6 @@ export default function NewAlumniPage() {
     program_studi: "",
     kota: "",
     bidang_pekerjaan: "",
-    linkedin: "",
-    instagram: "",
-    facebook: "",
-    tiktok: "",
-    email: "",
-    no_hp: "",
-    tempat_bekerja: "",
-    alamat_bekerja: "",
-    posisi: "",
-    status_kepegawaian: "",
-    medsos_tempat_bekerja: ""
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -68,98 +57,96 @@ export default function NewAlumniPage() {
         </a>
       </div>
 
-      <div className="card" style={{ maxWidth: 800, margin: "0 auto" }}>
+      <div className="card" style={{ maxWidth: 680, margin: "0 auto" }}>
         <form onSubmit={handleSubmit} id="form-new-alumni">
-          <h3 style={{ marginBottom: "var(--space-md)", borderBottom: "1px solid var(--color-border)", paddingBottom: "var(--space-sm)" }}>Data Dasar</h3>
           <div className="form-group">
-            <label className="form-label" htmlFor="nama">Nama Lengkap Alumni *</label>
-            <input className="form-input" type="text" id="nama" name="nama" value={formData.nama} onChange={handleChange} required />
-          </div>
-          
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-lg)" }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="afiliasi_kampus">Instansi / Kampus</label>
-              <input className="form-input" type="text" id="afiliasi_kampus" name="afiliasi_kampus" value={formData.afiliasi_kampus} onChange={handleChange} />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="program_studi">Program Studi</label>
-              <input className="form-input" type="text" id="program_studi" name="program_studi" value={formData.program_studi} onChange={handleChange} />
-            </div>
-          </div>
-          
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-lg)" }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="kota">Kota</label>
-              <input className="form-input" type="text" id="kota" name="kota" value={formData.kota} onChange={handleChange} />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="bidang_pekerjaan">Bidang Pekerjaan</label>
-              <input className="form-input" type="text" id="bidang_pekerjaan" name="bidang_pekerjaan" value={formData.bidang_pekerjaan} onChange={handleChange} />
-            </div>
+            <label className="form-label" htmlFor="nama">
+              Nama Lengkap Alumni *
+            </label>
+            <input
+              className="form-input"
+              type="text"
+              id="nama"
+              name="nama"
+              placeholder="Contoh: Muhammad Zulfikar"
+              value={formData.nama}
+              onChange={handleChange}
+              required
+            />
+            <span className="form-hint">
+              Masukkan nama lengkap untuk hasil pencarian optimal
+            </span>
           </div>
 
-          <h3 style={{ marginTop: "var(--space-xl)", marginBottom: "var(--space-md)", borderBottom: "1px solid var(--color-border)", paddingBottom: "var(--space-sm)" }}>Kontak & Sosial Media</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-lg)" }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="email">Email</label>
-              <input className="form-input" type="email" id="email" name="email" value={formData.email} onChange={handleChange} />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="no_hp">No HP</label>
-              <input className="form-input" type="text" id="no_hp" name="no_hp" value={formData.no_hp} onChange={handleChange} />
-            </div>
+          <div className="form-group">
+            <label className="form-label" htmlFor="afiliasi_kampus">
+              Afiliasi Kampus / Universitas
+            </label>
+            <input
+              className="form-input"
+              type="text"
+              id="afiliasi_kampus"
+              name="afiliasi_kampus"
+              placeholder="Contoh: Institut Teknologi Bandung"
+              value={formData.afiliasi_kampus}
+              onChange={handleChange}
+            />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-lg)" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "var(--space-lg)",
+            }}
+          >
             <div className="form-group">
-              <label className="form-label" htmlFor="linkedin">URL LinkedIn</label>
-              <input className="form-input" type="url" id="linkedin" name="linkedin" value={formData.linkedin} onChange={handleChange} />
+              <label className="form-label" htmlFor="program_studi">
+                Program Studi
+              </label>
+              <input
+                className="form-input"
+                type="text"
+                id="program_studi"
+                name="program_studi"
+                placeholder="Contoh: Teknik Informatika"
+                value={formData.program_studi}
+                onChange={handleChange}
+              />
             </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="instagram">URL Instagram</label>
-              <input className="form-input" type="url" id="instagram" name="instagram" value={formData.instagram} onChange={handleChange} />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="facebook">URL Facebook</label>
-              <input className="form-input" type="url" id="facebook" name="facebook" value={formData.facebook} onChange={handleChange} />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="tiktok">URL TikTok</label>
-              <input className="form-input" type="url" id="tiktok" name="tiktok" value={formData.tiktok} onChange={handleChange} />
-            </div>
-          </div>
 
-          <h3 style={{ marginTop: "var(--space-xl)", marginBottom: "var(--space-md)", borderBottom: "1px solid var(--color-border)", paddingBottom: "var(--space-sm)" }}>Data Pekerjaan</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-lg)" }}>
             <div className="form-group">
-              <label className="form-label" htmlFor="status_kepegawaian">Status Kepegawaian</label>
-              <select className="form-input" id="status_kepegawaian" name="status_kepegawaian" value={formData.status_kepegawaian} onChange={handleChange} style={{ backgroundColor: "var(--color-bg-elevated)", color: "var(--color-text)", padding: "10px", borderRadius: "8px", border: "1px solid var(--color-border)" }}>
-                <option value="">-- Pilih Status --</option>
-                <option value="PNS">PNS</option>
-                <option value="Swasta">Swasta</option>
-                <option value="Wirausaha">Wirausaha</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="posisi">Posisi / Jabatan</label>
-              <input className="form-input" type="text" id="posisi" name="posisi" value={formData.posisi} onChange={handleChange} />
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-lg)" }}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="tempat_bekerja">Nama Tempat Bekerja</label>
-              <input className="form-input" type="text" id="tempat_bekerja" name="tempat_bekerja" value={formData.tempat_bekerja} onChange={handleChange} />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="medsos_tempat_bekerja">Sosmed Tempat Bekerja</label>
-              <input className="form-input" type="text" id="medsos_tempat_bekerja" name="medsos_tempat_bekerja" value={formData.medsos_tempat_bekerja} onChange={handleChange} />
+              <label className="form-label" htmlFor="kota">
+                Kota
+              </label>
+              <input
+                className="form-input"
+                type="text"
+                id="kota"
+                name="kota"
+                placeholder="Contoh: Jakarta"
+                value={formData.kota}
+                onChange={handleChange}
+              />
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="alamat_bekerja">Alamat Bekerja</label>
-            <textarea className="form-input" id="alamat_bekerja" name="alamat_bekerja" value={formData.alamat_bekerja} onChange={handleChange} rows="2" style={{ width: "100%", backgroundColor: "var(--color-bg-elevated)", color: "var(--color-text)", padding: "10px", borderRadius: "8px", border: "1px solid var(--color-border)" }} />
+            <label className="form-label" htmlFor="bidang_pekerjaan">
+              Bidang Pekerjaan
+            </label>
+            <input
+              className="form-input"
+              type="text"
+              id="bidang_pekerjaan"
+              name="bidang_pekerjaan"
+              placeholder="Contoh: Software Engineering"
+              value={formData.bidang_pekerjaan}
+              onChange={handleChange}
+            />
+            <span className="form-hint">
+              Opsional. Membantu mempersempit hasil pencarian
+            </span>
           </div>
 
           {error && (

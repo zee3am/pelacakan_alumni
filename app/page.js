@@ -43,6 +43,7 @@ export default function DashboardPage() {
   const [alumni, setAlumni] = useState([]);
   const [loading, setLoading] = useState(true);
   const [trackingAll, setTrackingAll] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState(null);
 
   const fetchAlumni = async () => {
@@ -87,6 +88,39 @@ export default function DashboardPage() {
     }
   };
 
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Pastikan ekstensi valid
+    const isExcel = file.name.endsWith(".xlsx") || file.name.endsWith(".xls") || file.name.endsWith(".csv");
+    if (!isExcel) {
+      return showToast("Mohon upload file dengan format Excel (.xlsx, .xls) atau CSV.", "error");
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/alumni/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || "Gagal upload Excel");
+
+      showToast(data.message || "Berhasil import data alumni", "success");
+      fetchAlumni(); // refresh tabel
+    } catch (err) {
+      showToast(err.message, "error");
+    } finally {
+      setUploading(false);
+      event.target.value = null; // reset input
+    }
+  };
+
   // Calculate stats
   const totalAlumni = alumni.length;
   const belumDilacak = alumni.filter(
@@ -107,16 +141,14 @@ export default function DashboardPage() {
           <p>Kelola dan pantau status pelacakan alumni secara real-time</p>
         </div>
         <div className="flex gap-sm">
-          <a
-            href="/api/alumni/export"
-            download
-            className="btn btn-secondary btn-lg"
-            id="btn-export-csv"
-            target="_blank"
-            rel="noreferrer"
-          >
-            ⬇️ Ekspor CSV
-          </a>
+          <label className={`btn btn-secondary btn-lg ${uploading ? 'opacity-50' : ''}`} style={{ cursor: uploading ? 'wait' : 'pointer' }}>
+            {uploading ? (
+              <><span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }}></span> Mengupload...</>
+            ) : (
+              <>📄 Upload Excel</>
+            )}
+            <input type="file" accept=".xlsx, .xls, .csv" style={{ display: 'none' }} onChange={handleFileUpload} disabled={uploading} />
+          </label>
           <button
             className="btn btn-primary btn-lg"
             onClick={handleTrackAll}
