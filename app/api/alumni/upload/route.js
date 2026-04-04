@@ -80,6 +80,6 @@ export async function POST(request) {
 
   } catch (err) {
     console.error("Upload error:", err);
-    return NextResponse.json({ error: "Gagal memproses/menyimpan data dari file" }, { status: 500 });
+    return NextResponse.json({ error: `Gagal memproses/menyimpan data: ${err.message}` }, { status: 500 });
   }
 }
