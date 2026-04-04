@@ -32,7 +32,7 @@ export async function POST(request) {
       return null;
     };
 
-    let addedCount = 0;
+    let validData = [];
 
     for (const row of json) {
       const mappedData = {};
@@ -44,34 +44,38 @@ export async function POST(request) {
       }
 
       if (mappedData.nama && mappedData.nama.trim() !== "") {
-        await prisma.alumni.create({
-          data: {
-            nama: mappedData.nama,
-            afiliasi_kampus: mappedData.afiliasi_kampus || null,
-            program_studi: mappedData.program_studi || null,
-            kota: mappedData.kota || null,
-            bidang_pekerjaan: mappedData.bidang_pekerjaan || null,
-            email: mappedData.email || null,
-            no_hp: mappedData.no_hp || null,
-            linkedin: mappedData.linkedin || null,
-            instagram: mappedData.instagram || null,
-            facebook: mappedData.facebook || null,
-            tiktok: mappedData.tiktok || null,
-            tempat_bekerja: mappedData.tempat_bekerja || null,
-            alamat_bekerja: mappedData.alamat_bekerja || null,
-            posisi: mappedData.posisi || null,
-            jenis_pekerjaan: mappedData.jenis_pekerjaan || null,
-            sosmed_instansi: mappedData.sosmed_instansi || null,
-            status: "Belum Dilacak" // Default status
-          }
+        validData.push({
+          nama: mappedData.nama,
+          afiliasi_kampus: mappedData.afiliasi_kampus || null,
+          program_studi: mappedData.program_studi || null,
+          kota: mappedData.kota || null,
+          bidang_pekerjaan: mappedData.bidang_pekerjaan || null,
+          email: mappedData.email || null,
+          no_hp: mappedData.no_hp || null,
+          linkedin: mappedData.linkedin || null,
+          instagram: mappedData.instagram || null,
+          facebook: mappedData.facebook || null,
+          tiktok: mappedData.tiktok || null,
+          tempat_bekerja: mappedData.tempat_bekerja || null,
+          alamat_bekerja: mappedData.alamat_bekerja || null,
+          posisi: mappedData.posisi || null,
+          jenis_pekerjaan: mappedData.jenis_pekerjaan || null,
+          sosmed_instansi: mappedData.sosmed_instansi || null,
+          status: "Belum Dilacak" // Default status
         });
-        addedCount++;
       }
+    }
+
+    if (validData.length > 0) {
+      await prisma.alumni.createMany({
+        data: validData,
+        skipDuplicates: true // Optional, tapi tidak ada unique constraint sehingga akan lanjut saja
+      });
     }
 
     return NextResponse.json({ 
       success: true, 
-      message: `Berhasil import ${addedCount} data alumni dari file Excel.` 
+      message: `Berhasil menyiapkan ${validData.length} data alumni dari file Excel.` 
     });
 
   } catch (err) {
