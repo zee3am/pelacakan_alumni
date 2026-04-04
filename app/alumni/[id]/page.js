@@ -39,6 +39,11 @@ export default function AlumniDetailPage({ params }) {
   const [deleting, setDeleting] = useState(false);
   const [toast, setToast] = useState(null);
 
+  // State untuk form manual
+  const [showManualForm, setShowManualForm] = useState(false);
+  const [submittingManual, setSubmittingManual] = useState(false);
+  const [manualData, setManualData] = useState({ url: "", sumber: "", ringkasan_jabatan: "" });
+
   const fetchAlumni = async () => {
     try {
       const res = await fetch(`/api/alumni/${id}`);
@@ -100,6 +105,31 @@ export default function AlumniDetailPage({ params }) {
     }
   };
 
+  const handleManualSubmit = async (e) => {
+    e.preventDefault();
+    if (!manualData.url) return showToast("URL wajib diisi", "error");
+    
+    setSubmittingManual(true);
+    try {
+      const res = await fetch(`/api/alumni/${id}/evidence`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(manualData),
+      });
+
+      if (!res.ok) throw new Error();
+      
+      showToast("Bukti manual berhasil ditambahkan!", "success");
+      setShowManualForm(false);
+      setManualData({ url: "", sumber: "", ringkasan_jabatan: "" }); // reset
+      fetchAlumni();
+    } catch {
+      showToast("Gagal menambahkan bukti manual", "error");
+    } finally {
+      setSubmittingManual(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="loading-spinner">
@@ -135,6 +165,12 @@ export default function AlumniDetailPage({ params }) {
         </div>
         <div className="flex gap-sm">
           <button
+            className="btn btn-secondary btn-sm"
+            onClick={() => setShowManualForm(true)}
+          >
+            + Bukti Manual
+          </button>
+          <button
             className="btn btn-primary"
             onClick={handleTrack}
             disabled={tracking}
@@ -146,7 +182,7 @@ export default function AlumniDetailPage({ params }) {
                 Melacak...
               </>
             ) : (
-              <>🔍 Jalankan Pelacakan</>
+              <>🔍 Lacak Otomatis</>
             )}
           </button>
           <button
@@ -321,6 +357,57 @@ export default function AlumniDetailPage({ params }) {
           )}
         </div>
       </div>
+
+      {/* Modal Form Tambah Bukti Manual */}
+      {showManualForm && (
+        <div className="modal-overlay" style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div className="card" style={{ width: "100%", maxWidth: 500 }}>
+            <h3>Tambah Bukti Manual</h3>
+            <p className="text-muted" style={{ marginBottom: "var(--space-md)" }}>
+              Masukkan data pelacakan yang Anda temukan secara mandiri.
+            </p>
+            <form onSubmit={handleManualSubmit}>
+              <div className="form-group">
+                <label className="form-label">URL / Tautan Profil</label>
+                <input
+                  type="url"
+                  className="form-control"
+                  placeholder="https://linkedin.com/in/..."
+                  value={manualData.url}
+                  onChange={(e) => setManualData({ ...manualData, url: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Sumber</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Contoh: LinkedIn, Berita Kampus"
+                  value={manualData.sumber}
+                  onChange={(e) => setManualData({ ...manualData, sumber: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Ringkasan / Jabatan Pekerjaan</label>
+                <textarea
+                  className="form-control"
+                  rows="3"
+                  placeholder="Contoh: Bekerja sebagai Software Engineer sejak 2021"
+                  value={manualData.ringkasan_jabatan}
+                  onChange={(e) => setManualData({ ...manualData, ringkasan_jabatan: e.target.value })}
+                ></textarea>
+              </div>
+              <div className="flex gap-sm" style={{ marginTop: "var(--space-lg)", justifyContent: "flex-end" }}>
+                <button type="button" className="btn btn-ghost" onClick={() => setShowManualForm(false)}>Batal</button>
+                <button type="submit" className="btn btn-primary" disabled={submittingManual}>
+                  {submittingManual ? "Menyimpan..." : "Simpan Bukti"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Toast */}
       {toast && (
